@@ -9,12 +9,10 @@ const PORT = process.env.PORT || 10000;
 const INSTANCE = process.env.ZAPI_INSTANCE;
 const TOKEN = process.env.ZAPI_TOKEN;
 
-// rota teste
 app.get("/", (req, res) => {
-  res.send("Servidor rodando 🚀");
+  res.send("Servidor rodando");
 });
 
-// webhook da Z-API
 app.post("/webhook", async (req, res) => {
   try {
     const data = req.body;
@@ -26,14 +24,13 @@ app.post("/webhook", async (req, res) => {
     const numero = data.phone;
     const mensagem = data.message.text;
 
-    console.log("Mensagem recebida:", mensagem);
+    console.log("Mensagem:", mensagem);
 
-    // resposta automática simples
     await axios.post(
       https://api.z-api.io/instances/${INSTANCE}/token/${TOKEN}/send-text,
       {
         phone: numero,
-        message: "🚗 Olá! Bem-vindo à Maxcar Mobilidade!"
+        message: "Olá! Bem-vindo à Maxcar Mobilidade!"
       }
     );
 
@@ -45,5 +42,5 @@ app.post("/webhook", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(Servidor rodando na porta ${PORT});
+  console.log("Rodando na porta", PORT);
 });
