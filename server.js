@@ -1,6 +1,20 @@
 const express = require("express");
 const axios = require("axios");
+const { Client } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 
+const client = new Client();
+
+client.on('qr', (qr) => {
+  console.log('QR CODE DO WHATSAPP:');
+  qrcode.generate(qr, { small: true });
+});
+
+client.on('ready', () => {
+  console.log('WhatsApp conectado!');
+});
+
+client.initialize();
 const app = express();
 app.use(express.json());
 
