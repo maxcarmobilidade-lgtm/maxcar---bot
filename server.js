@@ -3,7 +3,20 @@ const axios = require("axios");
 const { Client } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
-const client = new Client();
+const client = new Client({
+  puppeteer: {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
+  }
+});
 
 client.on('qr', (qr) => {
   console.log('QR CODE DO WHATSAPP:');
@@ -13,7 +26,13 @@ client.on('qr', (qr) => {
 client.on('ready', () => {
   console.log('WhatsApp conectado!');
 });
+client.on('auth_failure', msg => {
+  console.error('Falha na autenticação:', msg);
+});
 
+client.on('disconnected', reason => {
+  console.log('WhatsApp desconectado:', reason);
+});
 client.initialize();
 const app = express();
 app.use(express.json());
