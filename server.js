@@ -6,23 +6,24 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// 🔑 DADOS Z-API
-const ZAPI_INSTANCE = "SUA_INSTANCIA";
-const ZAPI_TOKEN = "SEU_TOKEN";
+// 🔑 CONFIG (PODE DEIXAR VAZIO PRA TESTE)
+const ZAPI_INSTANCE = process.env.ZAPI_INSTANCE || "";
+const ZAPI_TOKEN = process.env.ZAPI_TOKEN || "";
 
-const ZAPI_URL = https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN};
+const ZAPI_URL = ZAPI_INSTANCE && ZAPI_TOKEN
+  ? https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}
+  : null;
 
 // 🔥 ROTA PRINCIPAL
 app.get("/", (req, res) => {
-  res.send("🚀 Maxcar ONLINE");
+  res.send("🚀 Maxcar ONLINE ESTÁVEL");
 });
 
 // 📩 WEBHOOK
 app.post("/webhook", async (req, res) => {
   try {
     const data = req.body || {};
-
-    console.log("📩 Recebido:", JSON.stringify(data));
+    console.log("📩:", JSON.stringify(data));
 
     const numero = data.phone || data.from || "";
     const mensagem =
@@ -32,10 +33,8 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
-    const msg = mensagem.toLowerCase();
-
-    if (msg.includes("oi")) {
-      await enviarMensagem(numero, "👋 Olá! Bem-vindo à Maxcar 🚗");
+    if (mensagem.toLowerCase().includes("oi")) {
+      await enviarMensagem(numero, "👋 Olá! Maxcar aqui 🚗");
     }
 
     res.sendStatus(200);
@@ -46,25 +45,26 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-// 📤 ENVIO SEGURO (NUNCA CRASHA)
+// 📤 ENVIO 100% SEGURO
 async function enviarMensagem(numero, texto) {
   try {
-    const response = await axios.post(
-      ${ZAPI_URL}/send-text,
-      {
-        phone: numero,
-        message: texto
-      },
-      {
-        timeout: 5000 // evita travar
-      }
-    );
+    if (!ZAPI_URL) {
+      console.log("⚠️ ZAPI não configurada");
+      return;
+    }
+
+    await axios.post(${ZAPI_URL}/send-text, {
+      phone: numero,
+      message: texto
+    }, {
+      timeout: 5000
+    });
 
     console.log("✅ Mensagem enviada");
 
   } catch (erro) {
     console.log("⚠️ Erro Z-API:", erro.response?.data || erro.message);
-    // NÃO lança erro → não derruba o servidor
+    // NÃO quebra o servidor
   }
 }
 
@@ -73,7 +73,16 @@ app.listen(PORT, () => {
   console.log("🚀 Rodando na porta " + PORT);
 });
 
-// 🔥 KEEP ALIVE
+// 🔥 PROTEÇÃO TOTAL
+process.on("uncaughtException", (err) => {
+  console.log("💥 ERRO GLOBAL:", err.message);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log("💥 PROMISE ERROR:", err);
+});
+
+// 🔄 KEEP ALIVE
 setInterval(() => {
-  console.log("🟢 ativo");
+  console.log("🟢 vivo");
 }, 10000);
