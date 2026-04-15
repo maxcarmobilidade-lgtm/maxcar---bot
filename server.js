@@ -7,8 +7,8 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // 🔑 CONFIG Z-API
-const ZAPI_INSTANCE = "SUA_INSTANCIA";
-const ZAPI_TOKEN = "SEU_TOKEN";
+const ZAPI_INSTANCE = "3F157D917E4C40749416BA4D31290A14";
+const ZAPI_TOKEN = "7E812EC62CB58F3DE0EAA342";
 
 const ZAPI_URL = https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN};
 
