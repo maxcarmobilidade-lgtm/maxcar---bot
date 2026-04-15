@@ -1,74 +1,46 @@
-const express = require('express');
-const axios = require('axios');
+const express = require("express");
+const axios = require("axios");
 
 const app = express();
 app.use(express.json());
 
-/* 🔐 CONFIG Z-API (COLOCA OS SEUS DADOS) */
-const ZAPI_INSTANCE = 'SUA_INSTANCIA';
-const ZAPI_TOKEN = 'SEU_TOKEN';
+// 🔐 CONFIG Z-API
+const ZAPI_TOKEN = "7E812EC62CB58F3DE0EAA342";
+const ZAPI_INSTANCE = "3F157D917E4C40749416BA4D31290A14";
 
-const ZAPI_URL = https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN};
-
-/* 🌐 TESTE */
-app.get('/', (req, res) => {
-  res.send('Maxcar bot online 🚀');
+// 🚀 TESTE
+app.get("/", (req, res) => {
+  res.send("Servidor rodando 🚀");
 });
 
-/* 📩 WEBHOOK */
-app.post('/webhook', async (req, res) => {
-
-  const data = req.body;
-
-  console.log('📩 Mensagem:', data);
-
-  const numero = data.phone;
-  const mensagem = data.text?.message;
-
-  if (!mensagem) return res.sendStatus(200);
-
-  /* 🤖 RESPOSTAS */
-
-  if (mensagem.toLowerCase() === 'oi') {
-    await enviarMensagem(numero,
-`👋 Olá! Bem-vindo à Maxcar 🚗
-
-Digite:
-1 - Solicitar corrida
-2 - Suporte`);
-  }
-
-  if (mensagem === '1') {
-    await enviarMensagem(numero,
-`🚗 Me envie seu endereço:
-
-Rua, número e cidade`);
-  }
-
-  if (mensagem === '2') {
-    await enviarMensagem(numero,
-`📞 Suporte Maxcar:
-(27) 99999-9999`);
-  }
-
-  res.sendStatus(200);
-});
-
-/* 📤 ENVIAR MSG */
-async function enviarMensagem(numero, texto) {
+// 📩 WEBHOOK
+app.post("/webhook", async (req, res) => {
   try {
-    await axios.post(${ZAPI_URL}/send-text, {
-      phone: numero,
-      message: texto
-    });
-  } catch (error) {
-    console.error('Erro ao enviar:', error.message);
+    const data = req.body;
+
+    if (data.type === "ReceivedCallback") {
+      const mensagem = data.text.message;
+      const numero = data.phone;
+
+      console.log("Mensagem:", mensagem);
+
+      await axios.post(
+        https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}/send-text,
+        {
+          phone: numero,
+          message: "🚗 Olá! Bem-vindo à Maxcar! Digite 1 para pedir corrida."
+        }
+      );
+    }
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.log("ERRO:", err.message);
+    res.sendStatus(200);
   }
-}
+});
 
-/* 🚀 START */
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log('Servidor rodando 🚀');
+  console.log("Servidor rodando na porta", PORT);
 });
