@@ -4,51 +4,61 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-// 🚨 PORTA OBRIGATÓRIA DO RAILWAY
 const PORT = process.env.PORT || 3000;
 
-// 🔑 CONFIG Z-API (COLOCA OS SEUS DADOS)
-const ZAPI_INSTANCE = "3F157D917E4C40749416BA4D31290A14";
-const ZAPI_TOKEN = "7E812EC62CB58F3DE0EAA342";
+// 🔑 CONFIG Z-API
+const ZAPI_INSTANCE = "SUA_INSTANCIA";
+const ZAPI_TOKEN = "SEU_TOKEN";
+
 const ZAPI_URL = https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN};
 
-// 🔥 ROTA PRINCIPAL (EVITA O APP CAIR)
+// 🔥 ROTA PRINCIPAL (Railway precisa disso)
 app.get("/", (req, res) => {
-  res.send("🚀 Maxcar Bot Online com Z-API");
+  res.send("🚀 Maxcar bot rodando");
 });
 
-// 📩 WEBHOOK (Z-API ENVIA MENSAGENS AQUI)
+// 🧠 WEBHOOK SUPER SEGURO (NÃO QUEBRA NUNCA)
 app.post("/webhook", async (req, res) => {
   try {
-    const data = req.body;
+    const data = req.body || {};
 
-    console.log("📩 Mensagem recebida:", data);
+    console.log("📩 WEBHOOK:", JSON.stringify(data));
 
-    const numero = data.phone;
-    const mensagem = data.text?.message;
+    const numero =
+      data.phone ||
+      data.from ||
+      data.sender ||
+      null;
+
+    const mensagem =
+      data.text?.message ||
+      data.message ||
+      data.body ||
+      "";
 
     if (!numero || !mensagem) {
       return res.sendStatus(200);
     }
 
-    // 🔥 RESPOSTA AUTOMÁTICA SIMPLES
-    if (mensagem.toLowerCase() === "oi") {
-      await enviarMensagem(numero, "👋 Olá! Bem-vindo à Maxcar!\nDigite 1 para solicitar corrida 🚗");
+    const msg = mensagem.toLowerCase();
+
+    if (msg.includes("oi")) {
+      await enviarMensagem(numero, "👋 Olá! Bem-vindo à Maxcar!\nDigite 1 para corrida 🚗");
     }
 
-    if (mensagem === "1") {
-      await enviarMensagem(numero, "🚗 Estamos buscando um motorista para você...");
+    if (msg === "1") {
+      await enviarMensagem(numero, "🚗 Buscando motorista...");
     }
 
     res.sendStatus(200);
 
   } catch (erro) {
-    console.log("❌ ERRO:", erro.message);
-    res.sendStatus(200);
+    console.log("❌ ERRO WEBHOOK:", erro);
+    res.sendStatus(200); // nunca quebra o servidor
   }
 });
 
-// 📤 FUNÇÃO PARA ENVIAR MENSAGEM
+// 📤 ENVIO Z-API (COM PROTEÇÃO)
 async function enviarMensagem(numero, texto) {
   try {
     await axios.post(${ZAPI_URL}/send-text, {
@@ -56,11 +66,11 @@ async function enviarMensagem(numero, texto) {
       message: texto
     });
   } catch (erro) {
-    console.log("Erro ao enviar mensagem:", erro.message);
+    console.log("Erro ao enviar:", erro.response?.data || erro.message);
   }
 }
 
-// 🚀 INICIA SERVIDOR
+// 🚀 START
 app.listen(PORT, () => {
-  console.log("🚀 Servidor rodando na porta " + PORT);
+  console.log("🚀 Rodando na porta " + PORT);
 });
