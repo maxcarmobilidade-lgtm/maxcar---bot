@@ -12,53 +12,39 @@ const ZAPI_TOKEN = "7E812EC62CB58F3DE0EAA342";
 
 const ZAPI_URL = https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN};
 
-// 🔥 ROTA PRINCIPAL (Railway precisa disso)
+// 🔥 ROTA PRINCIPAL
 app.get("/", (req, res) => {
-  res.send("🚀 Maxcar bot rodando");
+  res.send("🚀 Maxcar rodando 100%");
 });
 
-// 🧠 WEBHOOK SUPER SEGURO (NÃO QUEBRA NUNCA)
+// 🧠 WEBHOOK
 app.post("/webhook", async (req, res) => {
   try {
     const data = req.body || {};
 
-    console.log("📩 WEBHOOK:", JSON.stringify(data));
+    console.log("📩:", JSON.stringify(data));
 
-    const numero =
-      data.phone ||
-      data.from ||
-      data.sender ||
-      null;
-
+    const numero = data.phone || data.from || null;
     const mensagem =
-      data.text?.message ||
-      data.message ||
-      data.body ||
-      "";
+      data.text?.message || data.body || data.message || "";
 
-    if (!numero || !mensagem) {
-      return res.sendStatus(200);
-    }
+    if (!numero || !mensagem) return res.sendStatus(200);
 
     const msg = mensagem.toLowerCase();
 
     if (msg.includes("oi")) {
-      await enviarMensagem(numero, "👋 Olá! Bem-vindo à Maxcar!\nDigite 1 para corrida 🚗");
-    }
-
-    if (msg === "1") {
-      await enviarMensagem(numero, "🚗 Buscando motorista...");
+      await enviarMensagem(numero, "👋 Olá! Maxcar aqui 🚗");
     }
 
     res.sendStatus(200);
 
   } catch (erro) {
-    console.log("❌ ERRO WEBHOOK:", erro);
-    res.sendStatus(200); // nunca quebra o servidor
+    console.log("ERRO:", erro.message);
+    res.sendStatus(200);
   }
 });
 
-// 📤 ENVIO Z-API (COM PROTEÇÃO)
+// 📤 ENVIO
 async function enviarMensagem(numero, texto) {
   try {
     await axios.post(${ZAPI_URL}/send-text, {
@@ -66,7 +52,7 @@ async function enviarMensagem(numero, texto) {
       message: texto
     });
   } catch (erro) {
-    console.log("Erro ao enviar:", erro.response?.data || erro.message);
+    console.log("Erro envio:", erro.message);
   }
 }
 
@@ -74,3 +60,8 @@ async function enviarMensagem(numero, texto) {
 app.listen(PORT, () => {
   console.log("🚀 Rodando na porta " + PORT);
 });
+
+// 🔥 ANTI-QUEDA (ESSENCIAL)
+setInterval(() => {
+  console.log("🟢 Servidor ativo...");
+}, 15000);
